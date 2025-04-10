@@ -19,6 +19,11 @@
         /* Insert the additional CSS code here between the <style> tags  (Part I.4)   */
          body { margin:0; padding:0; }
          #map { position:absolute; top:0; bottom:0; width:100%; }
+         #title { z-index: 9999; 
+         background-color:white; 
+         opacity: 80%; 
+         text-align: center 
+     }
 
 
     </style>
@@ -29,6 +34,10 @@
      <div id='map'></div>
    
     <!--  Insert the title div here (part V) -->
+         <div id='title'>
+     		<h1>My Map of Portland</h1>
+     		<h2>By: Madeline Brown</h2>
+ 	</div>
 
     <script>
         // Insert the JavaScript within the <script> tags, within the body   
@@ -59,10 +68,10 @@
         .setPopup(popup) //add the popup with the variable name 'popup' to the marker
         .addTo(map);
 
-       var popup_layer = new mapboxgl.Popup({closeOnClick: true}) 
-       .setLngLat([-122.64, 45.5]) //popup coordinates
-       .setHTML('<h1>Hi Portland!</h1>') //popup text
-       .addTo(map); //add this popup to the map!
+        var popup_layer = new mapboxgl.Popup({closeOnClick: true, anchor: 'top-right'})
+        .setLngLat([-122.64, 45.5])
+        .setHTML('<h1>Hi Portland!</h1>')
+        .addTo(map);
 
         // Add optional advanced "On load" function here
         
