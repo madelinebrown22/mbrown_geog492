@@ -20,7 +20,8 @@
          body { margin:0; padding:0; }
          #map { position:absolute; top:0; bottom:0; width:100%; }
          #title { z-index: 9999; 
-         background-color:white; 
+         background-color:white;
+         color: pink;
          opacity: 80%; 
          text-align: center 
      }
@@ -35,7 +36,7 @@
    
     <!--  Insert the title div here (part V) -->
          <div id='title'>
-     		<h1>My Map of Portland</h1>
+     		<h1>Satellite Map of Portland, Oregon</h1>
      		<h2>By: Madeline Brown</h2>
  	</div>
 
@@ -48,7 +49,7 @@
         // Then initialize the map here (Part 2.2)
        var map = new mapboxgl.Map({
        container: 'map', // id of a div on your page, where the map will be inserted
-       style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+       style: 'mapbox://styles/mapbox/standard-satellite', // stylesheet location
        center: [-122.6788, 45.5212], // starting position [lng, lat] eg. [-122.6788, 45.5212]
        zoom: 11 // starting zoom 
  });
@@ -58,19 +59,14 @@
         .setHTML('Hello World. Welcome to Portland!');
         
         // Add any other variables such as markers here (part III)
-        var marker = new mapboxgl.Marker({color:'red'})
+        var marker = new mapboxgl.Marker({color:'green'})
         .setLngLat([-122.6788, 45.5212]) // starting position [lng, lat] 
         .setPopup(popup) //add the popup with the variable name 'popup' to the marker
         .addTo(map);
 
-        var marker2 = new mapboxgl.Marker({color:'red'})
-        .setLngLat([-122.69, 45.55]) // starting position [lng, lat] 
-        .setPopup(popup) //add the popup with the variable name 'popup' to the marker
-        .addTo(map);
-
-        var popup_layer = new mapboxgl.Popup({closeOnClick: true, anchor: 'top-right'})
+        var popup_layer = new mapboxgl.Popup({closeOnClick: true, anchor: 'bottom-right'})
         .setLngLat([-122.64, 45.5])
-        .setHTML('<h1>Hi Portland!</h1>')
+        .setHTML('<a href="https://en.wikipedia.org/wiki/Portland,_Oregon">Portland Wikipedia</a>')
         .addTo(map);
 
         // Add optional advanced "On load" function here
