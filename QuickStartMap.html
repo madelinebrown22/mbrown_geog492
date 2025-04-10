@@ -45,8 +45,19 @@
  });
    
         // Add popups for markers here. Yes, before the markers!  (part IV)
+        var popup = new mapboxgl.Popup({ offset: 25 })
+        .setHTML('Hello World. Welcome to Portland!');
         
         // Add any other variables such as markers here (part III)
+        var marker = new mapboxgl.Marker({color:'red'})
+        .setLngLat([-122.6788, 45.5212]) // starting position [lng, lat] 
+        .setPopup(popup) //add the popup with the variable name 'popup' to the marker
+        .addTo(map);
+
+        var marker2 = new mapboxgl.Marker({color:'red'})
+        .setLngLat([-122.69, 45.55]) // starting position [lng, lat] 
+        .setPopup(popup) //add the popup with the variable name 'popup' to the marker
+        .addTo(map);
 
         // Add optional advanced "On load" function here
         
