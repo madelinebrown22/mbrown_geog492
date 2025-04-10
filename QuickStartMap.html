@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang>
+<html lang="en">
 
   <head>
     <meta charset='utf-8' />
@@ -37,6 +37,12 @@
  
    
         // Then initialize the map here (Part 2.2)
+       var map = new mapboxgl.Map({
+       container: 'map', // id of a div on your page, where the map will be inserted
+       style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+       center: [-122.6788, 45.5212], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+       zoom: 11 // starting zoom 
+ });
    
         // Add popups for markers here. Yes, before the markers!  (part IV)
         
@@ -45,6 +51,11 @@
         // Add optional advanced "On load" function here
         
     </script>
+
+  </body>
+
+</html>
+
 
   </body>
 
