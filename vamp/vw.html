@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Swipe between maps</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
+  <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=New+Rocker&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      cursor: default !important;
+    }
+    
+    .new-rocker-regular {
+    font-family: "New Rocker", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    }
+
+    .map, #comparison-container {
+      position: absolute;
+      top: 0; bottom: 0; width: 100%;
+    }
+
+    #page-title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10001;
+    font-family: 'New Rocker', serif;
+    font-size: 26px;
+    background: rgba(255, 240, 245, 0.9); 
+    color: #800040; 
+    padding: 15px 30px;
+    border: 4px solid #c71585; 
+    border-radius: 12px;
+    box-shadow:
+        0 0 0 4px #ff69b4, 
+        inset 0 0 10px 2px #9a0062; 
+    text-transform: uppercase;
+    text-align: center;
+    }
+    
+    #aboutvampires, #aboutwolves {
+    position: absolute;
+    bottom: 200px;
+    padding: 10px 16px;       /* moderate padding */
+    background: black;
+    color: hotpink;
+    border: 2.5px solid hotpink;  /* slightly thicker but subtle */
+    border-radius: 6px;        /* slightly rounded */
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Papyrus', sans-serif;
+    font-size: 14px;           /* bigger than original but not too big */
+    z-index: 10001;
+    box-shadow:
+        0 0 7px 2px hotpink,
+        inset 0 0 7px 1px #9a0062;
+    }
+    #aboutvampires { left: 20px; }
+    #aboutwolves { right: 20px; }
+
+    .legend-box {
+    position: absolute;
+    bottom: 20px;
+    background: rgba(255, 240, 245, 0.9);
+    color: #800040;
+    padding: 12px 24px;
+    border: 4px solid #c71585; /* dark pink border */
+    border-radius: 12px;
+    box-shadow:
+        0 0 4px 2px #ff69b4,  /* softer outer glow */
+        inset 0 0 6px 1px #9a0062; /* softer inner glow */
+    font-family: 'Papyrus', sans-serif;
+    font-size: 18px;
+    z-index: 10000;
+    text-align: center;
+    }
+
+    .legend-vampire { left: 20px; }
+    .legend-werewolf { right: 20px; }
+    .legend-box div { height: 10px; }
+
+    #vote-popup, #disclaimer-popup, #info-popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10001;
+    }
+    #vote-popup-content, #disclaimer-popup-content, #info-popup-content {
+      background: black;
+      color: hotpink;
+      border: 4px solid hotpink;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      font-family: 'Papyrus', serif;
+      max-width: 600px;
+      position: relative;
+    }
+    .vote-options {
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+    }
+    .vote-choice {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .vote-choice img {
+      width: 150px;
+      border: 2px solid hotpink;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .vote-choice button {
+      background: hotpink;
+      color: black;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      font-size: 24px;
+      z-index: 9999;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .sparkle.blood {
+      animation: drip 0.8s ease-out forwards;
+    }
+    .sparkle.claw {
+      animation: scratch 0.6s ease-out forwards;
+    }
+    @keyframes drip {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(20px) scale(0.6); opacity: 0; }
+    }
+    @keyframes scratch {
+      0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateX(20px) rotate(15deg); opacity: 0; }
+    }
+
+    #info {
+    position: absolute;
+    top: 20px; 
+    left: 20px; 
+    padding: 12px 20px; 
+    font-size: 16px; 
+    background: black;
+    color: hotpink;
+    border: 2px solid hotpink;
+    border-radius: 5px;
+    font-weight: normal;
+    cursor: pointer;
+    font-family: 'Papyrus', sans-serif;
+    z-index: 9999;
+    box-shadow:
+        0 0 8px 3px hotpink; 
+}
+
+    #info-popup {
+    display: none; 
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+    #info-popup-content {
+    position: relative;
+    background-color: black;
+    margin: 5% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 500px;
+    max-height: 80%; 
+    overflow-y: auto; /* make scrollable */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  </style>
+</head>
+<body>
+  <h1 id="page-title">Vampire and Werewolf Habitat Suitability</h1>
+  <div id="comparison-container">
+    <div id="vamps" class="map"></div>
+    <div id="wolves" class="map"></div>
+  </div>
+
+  <div class="legend-box legend-vampire">
+    <strong>Vampire Legend</strong><br>
+    <div style="background:#fff5f5;"></div>
+    <div style="background:#fca5a5;"></div>
+    <div style="background:#f87171;"></div>
+    <div style="background:#dc2626;"></div>
+    <div style="background:#7f1d1d;"></div>
+    <small>Darker = Better <br> Vampire Habitat</small>
+  </div>
+  <div class="legend-box legend-werewolf">
+    <strong>Werewolf Legend</strong><br>
+    <div style="background:#f8f9fa;"></div>
+    <div style="background:#d1d5db;"></div>
+    <div style="background:#9ca3af;"></div>
+    <div style="background:#6b7280;"></div>
+    <div style="background:#374151;"></div>
+    <small>Darker = Better <br> Werewolf Habitat</small>
+  </div>
+
+  <button id="aboutvampires">About Vampire Habitat</button>
+  <button id="aboutwolves">About Werewolf Habitat</button>
+  <button id="info">Sources</button>
+
+  <div id="vote-popup"><div id="vote-popup-content"></div></div>
+  <div id="disclaimer-popup">
+    <div id="disclaimer-popup-content">
+      <h2>Disclaimer</h2>
+      <p>This website is a fan-made interactive project. It is not affiliated with, endorsed by, or connected to any official franchise, publisher, or copyright holder of Twilight or any associated characters</p>
+      <button id="close-disclaimer">Close</button>
+    </div>
+  </div>
+  <div id="info-popup">
+    <div id="info-popup-content">
+      <span id="close-popup" style="position:absolute; top:10px; right:15px; font-size:24px; font-weight:bold; cursor:pointer; color:hotpink;">&times;</span>
+      <div id="info-text"></div>
+    </div>
+  </div>
+
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuYXN5bHZlc3RlcjEiLCJhIjoiY205OHptaDhlMDhmZDJqcTduanJ6YXFmMiJ9.8sz541HqgN_vaIcXOF-IoQ';
+    const VampMap = new mapboxgl.Map({ container: 'vamps', style: 'mapbox://styles/mapbox/dark-v10', center: [-98.5795, 39.8283], zoom: 3.75 });
+    const WolfMap = new mapboxgl.Map({ container: 'wolves', style: 'mapbox://styles/mapbox/dark-v10', center: [-98.5795, 39.8283], zoom: 3.75 });
+    new mapboxgl.Compare(VampMap, WolfMap, '#comparison-container');
+
+    VampMap.on('load', () => {
+    VampMap.addLayer({
+        id: 'Vampire Data',
+        type: 'fill',
+        source: { type: 'vector', url: 'mapbox://danasylvester1.8mktqjoi' },
+        'source-layer': 'vampire-4axstn',
+        paint: {
+        'fill-color': ['step', ['get', 'gridcode'],
+            '#7f1d1d', 2, '#dc2626', 3, '#f87171', 4, '#fca5a5', 5, '#fff5f5'],
+        'fill-opacity': 0.7
+        }
+    });
+
+    // First vampire marker - Twilight in Forks
+    const vampireEmoji1 = document.createElement('div');
+    vampireEmoji1.innerText = '🧛';
+    vampireEmoji1.style.fontSize = '24px';
+
+    new mapboxgl.Marker({ element: vampireEmoji1 })
+        .setLngLat([-124.3852, 47.9501])
+        .setPopup(
+        new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <h3>🧛 Twilight</h3>
+            <p>Legend has it that a pale and mysterious family resides here, living off the blood of animals.</p>
+        `)
+        )
+        .addTo(VampMap);
+
+    // Second vampire marker - Mercy Brown in Exeter, Rhode Island
+    const vampireEmoji2 = document.createElement('div');
+    vampireEmoji2.innerText = '🧛‍♀️';
+    vampireEmoji2.style.fontSize = '24px';
+
+    new mapboxgl.Marker({ element: vampireEmoji2 })
+        .setLngLat([-71.5419, 41.6885])
+        .setPopup(
+        new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <h3>🧛‍♀️ Mercy Brown</h3>
+            <p>One of the most famous examples of the vampire panic that occurred in New England in the 19th century, a result of the tuberculosis epidemic. She was from Exeter, Rhode Island.</p>
+            <p><a href="https://en.wikipedia.org/wiki/Mercy_Brown_vampire_incident" target="_blank" rel="noopener noreferrer">Learn more about Mercy Brown</a></p>
+        `)
+        )
+        .addTo(VampMap);
+    });
+
+    // Third vamp marker - New Orleans
+    const vampireEmojiNOLA = document.createElement('div');
+    vampireEmojiNOLA.innerText = '🧛';
+    vampireEmojiNOLA.style.fontSize = '24px';
+
+    new mapboxgl.Marker({ element: vampireEmojiNOLA })
+    .setLngLat([-90.0715, 29.9511])  // New Orleans coordinates
+    .setPopup(
+        new mapboxgl.Popup({ offset: 25 }).setHTML(`
+        <h3>🧛 Jacques St. Germain</h3>
+        <p>New Orleans has rich vampire lore - it's said they roam the French Quarter at night. One such legend is Jacques St. Germain, born 1902, who is said to have attended luxurious dinner parties without ever tasting the food, prefering bottled blood.</p>
+        <p><a href="https://en.wikipedia.org/wiki/Jacques_St._Germain" target="_blank" rel="noopener noreferrer">Learn more about Jacques St. Germain</a></p>
+        `)
+    )
+    .addTo(VampMap);
+
+
+    WolfMap.on('load', () => {
+      WolfMap.addLayer({
+        id: 'Werewolf Data',
+        type: 'fill',
+        source: { type: 'vector', url: 'mapbox://danasylvester1.2zmjvrjg' },
+        'source-layer': 'werewolf2_1-3sv8pm',
+        paint: {
+          'fill-color': ['step', ['get', 'gridcode'],
+            '#374151', 2, '#6b7280', 3, '#9ca3af', 4, '#d1d5db', 5, '#f8f9fa'],
+          'fill-opacity': 0.7
+        }
+      });
+      const wolfEmoji = document.createElement('div');
+        wolfEmoji.innerText = '🌕';
+        wolfEmoji.style.fontSize = '24px';
+
+        new mapboxgl.Marker({ element: wolfEmoji })
+        .setLngLat([-124.3852, 47.9501])
+        .setPopup(
+            new mapboxgl.Popup({ offset: 25 }).setHTML(`
+                <h3>🐺🌕 Wolf Sighting: Twilight</h3>
+                <p>A pack of werewolves lives here, in conflict with the local vampires.</p>
+                `)
+        )
+        .addTo(WolfMap);
+
+        const wolfEmojiBeast = document.createElement('div');
+        wolfEmojiBeast.innerText = '🌕';
+        wolfEmojiBeast.style.fontSize = '24px';
+
+        new mapboxgl.Marker({ element: wolfEmojiBeast })
+        .setLngLat([-88.3911, 43.1253])  // Elkhorn, Wisconsin (near Bray Road)
+        .setPopup(
+            new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <h3>🐺🌕 The Beast of Bray Road</h3>
+            <p>A legendary creature spotted roaming near Elkhorn, Wisconsin, known as the Beast of Bray Road. Described as a large, wolf-like creature that has terrified locals for decades.</p>
+            <p><a href="https://en.wikipedia.org/wiki/Beast_of_Bray_Road" target="_blank" rel="noopener noreferrer">Learn more about the Beast of Bray Road</a></p>
+            `)
+        )
+        .addTo(WolfMap);
+
+        const dogmanEmoji = document.createElement('div');
+        dogmanEmoji.innerText = '🌕';
+        dogmanEmoji.style.fontSize = '24px';
+
+        new mapboxgl.Marker({ element: dogmanEmoji })
+        .setLngLat([-99.9018, 31.9686])  // Approx center of Texas Dogman Triangle area
+        .setPopup(
+            new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <h3>🐺🌕 Dogman Triangle</h3>
+            <p>The Dogman Triangle is a place in Texas known for it's mysterious wolf-like creature sightings, which inspired a documentry called "The Dogman Triangle: Werewolves in the Lone Star State."</p>
+            <p><a href="https://www.imdb.com/title/tt27643013/plotsummary/?ref_=tt_ov_pl" target="_blank" rel="noopener noreferrer">Learn more about the Dogman Documentry</a></p>
+            `)
+        )
+        .addTo(WolfMap);
+
+        const loupGarouEmoji = document.createElement('div');
+        loupGarouEmoji.innerText = '🌕';
+        loupGarouEmoji.style.fontSize = '24px';
+
+        new mapboxgl.Marker({ element: loupGarouEmoji })
+        .setLngLat([-92.0198, 30.2241]) // Lafayette, Louisiana
+        .setPopup(
+            new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <h3>🐺🌕  Loup-Garou</h3>
+            <p>A feared creature that can turn from man to wolf, from French folklore which was brought to Louisiana. The curse can be passed from person to person by drawing blood. If a person lives with the curse for 101 days, it is lifted.</p>
+            <p><a href="https://www.thecanadianencyclopedia.ca/en/article/loup-garou" target="_blank" rel="noopener noreferrer">Learn more about the Loup-Garou</a></p>
+            `)
+        )
+        .addTo(WolfMap);
+    });
+
+    let votes = JSON.parse(localStorage.getItem('twilightVotes')) || { edward: 0, jacob: 0 };
+
+    function submitVote(choice) {
+    votes[choice]++;
+    localStorage.setItem('twilightVotes', JSON.stringify(votes));
+    showResults();
+    }
+
+    function showResults() {
+    const total = votes.edward + votes.jacob;
+    const edwardPercent = total ? Math.round((votes.edward / total) * 100) : 0;
+    const jacobPercent = total ? 100 - edwardPercent : 0;
+
+    document.getElementById('vote-popup-content').innerHTML = `
+        <h2>Current Results</h2>
+        <p>
+            <img src="edward.jpg" alt="Edward" style="width:24px; vertical-align:middle; margin-right:8px;">
+            Edward 🧛‍♂️: ${edwardPercent}%<br>
+            <img src="jacob.jpg" alt="Jacob" style="width:24px; vertical-align:middle; margin-right:8px;">
+            Jacob 🐺: ${jacobPercent}%
+        </p>
+        <div style="margin-top:20px;">
+            <button id="revote" style="padding:10px 20px; margin-right:10px; font-weight:bold; border-radius:5px; background:black; color:hotpink; border:2px solid hotpink; cursor:pointer;">Vote Again</button>
+            <button id="close-vote-popup" style="padding:10px 20px; font-weight:bold; border-radius:5px; background:hotpink; color:black; border:none; cursor:pointer;">Close</button>
+        </div>
+    `;
+    document.getElementById("vote-popup").style.display = "flex";
+    document.getElementById("revote").onclick = requireVote;
+    document.getElementById("close-vote-popup").onclick = () => {
+        document.getElementById("vote-popup").style.display = "none";
+    };
+    }
+
+    function requireVote() {
+    document.getElementById('vote-popup-content').innerHTML = `
+        <h2>Vote for Edward or Jacob</h2>
+        <div class="vote-options">
+        <div class="vote-choice">
+            <img src="edward.jpg" alt="Edward" />
+            <button onclick="submitVote('edward')">Edward</button>
+        </div>
+        <div class="vote-choice">
+            <img src="jacob.jpg" alt="Jacob" />
+            <button onclick="submitVote('jacob')">Jacob</button>
+        </div>
+        </div>
+        <button id="view-results" style="margin-top:20px; padding:10px 20px; font-weight:bold; border-radius:5px; background:black; color:hotpink; border:2px solid hotpink; cursor:pointer;">View Results</button>
+    `;
+    document.getElementById("vote-popup").style.display = "flex";
+    document.getElementById("view-results").onclick = showResults;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById("disclaimer-popup").style.display = "flex";
+      document.getElementById("close-disclaimer").onclick = () => {
+        document.getElementById("disclaimer-popup").style.display = "none";
+
+        // ⏱️ Trigger vote popup 10 seconds later
+        setTimeout(() => {
+          requireVote();
+        }, 10000);
+      };
+
+      document.getElementById('aboutvampires').onclick = () => {
+        document.getElementById('vampire-sound').play();
+        document.getElementById('info-text').innerHTML =
+          "<h2>Vampire Habitat</h2><p>Vampires prefer urban environments and high cloud cover to avoid detection in sunlight.</p>";
+        document.getElementById('info-popup').style.display = 'flex';
+        document.getElementById('close-popup').onclick = () => {
+        document.getElementById('info-popup').style.display = 'none';
+        };
+      };
+      document.getElementById('aboutwolves').onclick = () => {
+        document.getElementById('wolf-sound').play();
+        document.getElementById('info-text').innerHTML =
+          "<h2>Werewolf Habitat</h2><p>Werewolves favor forests and remote wilderness areas, away from human settlements.</p>";
+        document.getElementById('info-popup').style.display = 'flex';
+        document.getElementById('close-popup').onclick = () => {
+        document.getElementById('info-popup').style.display = 'none';
+        };
+      };
+      
+      document.getElementById('info').onclick = () => {
+        document.getElementById('info-text').innerHTML = `
+            <h2>Sources</h2>
+            <p>Werewolves habitat suitability model layers:</p>
+            <p>Esri. (2023). <em>Land Cover, 2021, NLCD</em> [Map layer]. ArcGIS Living Atlas of the World. 
+            <a href="https://www.arcgis.com/home/item.html?id=394d26a0dc684c4c8347afd002f63b70" target="_blank">
+            https://www.arcgis.com/home/item.html?id=394d26a0dc684c4c8347afd002f63b70</a> (Accessed June 2, 2025).</p>
+            
+            <p>U.S. Geological Survey (USGS). (2023). <em>Protected Areas Database of the United States (PAD-US)</em> [Map layer]. ArcGIS Living Atlas of the World. 
+            <a href="https://www.arcgis.com/home/item.html?id=ceca1387ecf8412a9bad1f97eb94703d" target="_blank">
+            https://www.arcgis.com/home/item.html?id=ceca1387ecf8412a9bad1f97eb94703d</a> (Accessed June 2, 2025).</p>
+            
+            <p>Vampire habitat suitability model layers:</p>
+            <p>Esri. (2023). <em>USA States (Generalized)</em> [Map layer]. ArcGIS Living Atlas of the World.
+            <a href="https://www.arcgis.com/home/item.html?id=10551da8fcd24062b1857473252b3df8" target="_blank">
+            https://www.arcgis.com/home/item.html?id=10551da8fcd24062b1857473252b3df8</a> (Accessed June 2, 2025).</p>
+
+            <p>Esri. (2023). <em>USA Census Tracts</em> [Map layer]. ArcGIS Living Atlas of the World. 
+            <a href="https://www.arcgis.com/home/item.html?id=a1926cb43e844c3f82275917d6eab47a" target="_blank">
+            https://www.arcgis.com/home/item.html?id=a1926cb43e844c3f82275917d6eab47a</a> (Accessed June 2, 2025).</p>
+            <p>Esri. (2023). <em>USA Population Density, 2020</em> [Map layer]. ArcGIS Living Atlas of the World. 
+            <a href="https://www.arcgis.com/home/item.html?id=d4b81cb2dc4f4b938964aa1eb9b4b9a9" target="_blank">
+            https://www.arcgis.com/home/item.html?id=d4b81cb2dc4f4b938964aa1eb9b4b9a9</a> (Accessed June 2, 2025).</p>
+
+            <p>Photo Attribution</p>
+            <p> Edward: Photo by robsessededdicted on Flickr, licensed under CC BY 2.0 </p>
+            <p>Jacob: Eurasian wolf (<em>Canis lupus lupus</em>), domaine du Pescheray, France<br>
+            Photo by Clément Bardot – Own work<br>
+            Licensed under <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a> via Wikimedia Commons
+            </p>
+        `;
+        document.getElementById('info-popup').style.display = 'flex';
+        document.getElementById('close-popup').onclick = () => {
+        document.getElementById('info-popup').style.display = 'none';
+  };
+    };
+
+
+      document.addEventListener("mousemove", function (e) {
+        const sparkle = document.createElement("div");
+        sparkle.classList.add("sparkle");
+        const divider = document.querySelector('.compare-swiper-vertical');
+        let dividerX = window.innerWidth / 2;
+        if (divider) {
+          const rect = divider.getBoundingClientRect();
+          dividerX = rect.left + rect.width / 2;
+        }
+        const isLeft = e.clientX < dividerX;
+        sparkle.innerHTML = isLeft ? "🩸" : "🐾";
+        sparkle.classList.add(isLeft ? "blood" : "claw");
+        sparkle.style.left = `${e.clientX}px`;
+        sparkle.style.top = `${e.clientY}px`;
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 600);
+      });
+    });
+
+  </script>
+
+<audio id="vampire-sound" src="vampire-sound.mp3" preload="auto"></audio>
+<audio id="wolf-sound" src="wolf-sound.mp3" preload="auto"></audio>
+
+</body>
+</html>
