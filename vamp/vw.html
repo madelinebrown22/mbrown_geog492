@@ -275,7 +275,7 @@
     new mapboxgl.Marker({ element: vampireEmoji1 })
         .setLngLat([-124.3852, 47.9501])
         .setPopup(
-        new mapboxgl.Popup({ offset: 25 }).setHTML(`
+        new mapboxgl.Popup({ offset: 25, anchor: 'top' }).setHTML(`
             <h3>🧛 Twilight</h3>
             <p>Legend has it that a pale and mysterious family resides here, living off the blood of animals.</p>
         `)
@@ -349,7 +349,7 @@
         new mapboxgl.Marker({ element: wolfEmojiBeast })
         .setLngLat([-88.3911, 43.1253])  // Elkhorn, Wisconsin (near Bray Road)
         .setPopup(
-            new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            new mapboxgl.Popup({ offset: 25, anchor: 'top' }).setHTML(`
             <h3>🐺🌕 The Beast of Bray Road</h3>
             <p>A legendary creature spotted roaming near Elkhorn, Wisconsin, known as the Beast of Bray Road. Described as a large, wolf-like creature that has terrified locals for decades.</p>
             <p><a href="https://en.wikipedia.org/wiki/Beast_of_Bray_Road" target="_blank" rel="noopener noreferrer">Learn more about the Beast of Bray Road</a></p>
