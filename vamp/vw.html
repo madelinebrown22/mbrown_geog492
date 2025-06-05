@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -53,7 +54,7 @@
     
     #aboutvampires, #aboutwolves {
     position: absolute;
-    bottom: 200px;
+    bottom: 180px;
     padding: 10px 16px;       /* moderate padding */
     background: black;
     color: hotpink;
@@ -61,7 +62,7 @@
     border-radius: 6px;        /* slightly rounded */
     font-weight: bold;
     cursor: pointer;
-    font-family: 'Papyrus', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 14px;           /* bigger than original but not too big */
     z-index: 10001;
     box-shadow:
@@ -82,7 +83,7 @@
     box-shadow:
         0 0 4px 2px #ff69b4,  /* softer outer glow */
         inset 0 0 6px 1px #9a0062; /* softer inner glow */
-    font-family: 'Papyrus', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 18px;
     z-index: 10000;
     text-align: center;
@@ -109,7 +110,7 @@
       border-radius: 10px;
       padding: 30px;
       text-align: center;
-      font-family: 'Papyrus', serif;
+      font-family: 'Roboto', serif;
       max-width: 600px;
       position: relative;
     }
@@ -172,7 +173,7 @@
     border-radius: 5px;
     font-weight: normal;
     cursor: pointer;
-    font-family: 'Papyrus', sans-serif;
+    font-family: 'Roboto', sans-serif;
     z-index: 9999;
     box-shadow:
         0 0 8px 3px hotpink; 
@@ -426,11 +427,11 @@
         <h2>Vote for Edward or Jacob</h2>
         <div class="vote-options">
         <div class="vote-choice">
-            <img src="edward.jpg" alt="Edward" />
+            <img src="Edward_Cullen.jpg" alt="Edward" />
             <button onclick="submitVote('edward')">Edward</button>
         </div>
         <div class="vote-choice">
-            <img src="jacob.jpg" alt="Jacob" />
+            <img src="Jacob_Black2.jpg" alt="Jacob" />
             <button onclick="submitVote('jacob')">Jacob</button>
         </div>
         </div>
@@ -463,7 +464,7 @@
       document.getElementById('aboutwolves').onclick = () => {
         document.getElementById('wolf-sound').play();
         document.getElementById('info-text').innerHTML =
-          "<h2>Werewolf Habitat</h2><p>Werewolves favor forests and remote wilderness areas, away from human settlements.</p>";
+          "<h2>Werewolf Habitat</h2><p>Werewolves favor forests and remote wilderness areas, away from human settlements. They often feed on livestock.</p>";
         document.getElementById('info-popup').style.display = 'flex';
         document.getElementById('close-popup').onclick = () => {
         document.getElementById('info-popup').style.display = 'none';
