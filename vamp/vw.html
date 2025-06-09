@@ -21,6 +21,7 @@
       cursor: default !important;
     }
     
+    /* Gothic font */
     .new-rocker-regular {
     font-family: "New Rocker", system-ui;
     font-weight: 400;
@@ -31,7 +32,8 @@
       position: absolute;
       top: 0; bottom: 0; width: 100%;
     }
-
+    
+    /* Title styling */
     #page-title {
     position: absolute;
     top: 10px;
@@ -52,18 +54,19 @@
     text-align: center;
     }
     
+    /* About button styling */
     #aboutvampires, #aboutwolves {
     position: absolute;
     bottom: 200px;
-    padding: 10px 16px;       /* moderate padding */
+    padding: 10px 16px;       
     background: black;
     color: hotpink;
-    border: 2.5px solid hotpink;  /* slightly thicker but subtle */
-    border-radius: 6px;        /* slightly rounded */
+    border: 2.5px solid hotpink;  
+    border-radius: 6px;     
     font-weight: bold;
     cursor: pointer;
     font-family: 'Papyrus', sans-serif;
-    font-size: 14px;           /* bigger than original but not too big */
+    font-size: 14px;           
     z-index: 10001;
     box-shadow:
         0 0 7px 2px hotpink,
@@ -71,18 +74,19 @@
     }
     #aboutvampires { left: 20px; }
     #aboutwolves { right: 20px; }
-
+    
+    /* Legend styling */
     .legend-box {
     position: absolute;
     bottom: 20px;
     background: rgba(255, 240, 245, 0.9);
     color: #800040;
     padding: 12px 24px;
-    border: 4px solid #c71585; /* dark pink border */
+    border: 4px solid #c71585; 
     border-radius: 12px;
     box-shadow:
-        0 0 4px 2px #ff69b4,  /* softer outer glow */
-        inset 0 0 6px 1px #9a0062; /* softer inner glow */
+        0 0 4px 2px #ff69b4,  
+        inset 0 0 6px 1px #9a0062; 
     font-family: 'Papyrus', sans-serif;
     font-size: 18px;
     z-index: 10000;
@@ -93,6 +97,7 @@
     .legend-werewolf { right: 20px; }
     .legend-box div { height: 10px; }
 
+    /* Pop up styling */
     #vote-popup, #disclaimer-popup, #info-popup {
       position: fixed;
       top: 0; left: 0;
@@ -146,6 +151,8 @@
       z-index: 9999;
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
+
+    /* Blood and paw print mouse follow animation */
     .sparkle.blood {
       animation: drip 0.8s ease-out forwards;
     }
@@ -161,6 +168,7 @@
       100% { transform: translateX(20px) rotate(15deg); opacity: 0; }
     }
 
+    /* Sources button styling */
     #info {
     position: absolute;
     top: 20px; 
@@ -173,7 +181,7 @@
     border-radius: 5px;
     font-weight: normal;
     cursor: pointer;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Papyrus', sans-serif;
     z-index: 9999;
     box-shadow:
         0 0 8px 3px hotpink; 
@@ -202,6 +210,7 @@
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
+  /* Make slider pink */
     .compare-swiper-vertical {
     background-color: hotpink !important;
   }
@@ -253,11 +262,14 @@
   </div>
 
   <script>
+
+    /* Add maps for vampire and werewolves, specifying center, zoom, and bounds */
     mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuYXN5bHZlc3RlcjEiLCJhIjoiY205OHptaDhlMDhmZDJqcTduanJ6YXFmMiJ9.8sz541HqgN_vaIcXOF-IoQ';
-    const VampMap = new mapboxgl.Map({ container: 'vamps', style: 'mapbox://styles/mapbox/dark-v10', center: [-98.5795, 39.8283], zoom: 3.75 });
-    const WolfMap = new mapboxgl.Map({ container: 'wolves', style: 'mapbox://styles/mapbox/dark-v10', center: [-98.5795, 39.8283], zoom: 3.75 });
+    const VampMap = new mapboxgl.Map({ container: 'vamps', style: 'mapbox://styles/mapbox/dark-v10', center: [-98.5795, 39.8283], zoom: 3.75, minZoom: 3, maxZoom: 5});
+    const WolfMap = new mapboxgl.Map({ container: 'wolves', style: 'mapbox://styles/mapbox/dark-v10', center: [-98.5795, 39.8283], zoom: 3.75, minZoom: 3, maxZoom: 5});
     new mapboxgl.Compare(VampMap, WolfMap, '#comparison-container');
 
+    /* Add layer for vampire data */
     VampMap.on('load', () => {
     VampMap.addLayer({
         id: 'Vampire Data',
@@ -319,7 +331,7 @@
     )
     .addTo(VampMap);
 
-
+    // Add wolf map layer
     WolfMap.on('load', () => {
       WolfMap.addLayer({
         id: 'Werewolf Data',
@@ -336,6 +348,7 @@
         wolfEmoji.innerText = '🌕';
         wolfEmoji.style.fontSize = '24px';
 
+        // Add Twilight marker for werewolf map
         new mapboxgl.Marker({ element: wolfEmoji })
         .setLngLat([-124.3852, 47.9501])
         .setPopup(
@@ -350,8 +363,9 @@
         wolfEmojiBeast.innerText = '🌕';
         wolfEmojiBeast.style.fontSize = '24px';
 
+        // Add marker for the Beast of Bray Road
         new mapboxgl.Marker({ element: wolfEmojiBeast })
-        .setLngLat([-88.3911, 43.1253])  // Elkhorn, Wisconsin (near Bray Road)
+        .setLngLat([-88.3911, 43.1253])  // Elkhorn, Wisconsin 
         .setPopup(
             new mapboxgl.Popup({ offset: 25, anchor: 'top' }).setHTML(`
             <h3>🐺🌕 The Beast of Bray Road</h3>
@@ -365,6 +379,7 @@
         dogmanEmoji.innerText = '🌕';
         dogmanEmoji.style.fontSize = '24px';
 
+        // Add marker for Dogman Triangle
         new mapboxgl.Marker({ element: dogmanEmoji })
         .setLngLat([-99.9018, 31.9686])  // Approx center of Texas Dogman Triangle area
         .setPopup(
@@ -380,6 +395,7 @@
         loupGarouEmoji.innerText = '🌕';
         loupGarouEmoji.style.fontSize = '24px';
 
+        // Add marker for loup-garou
         new mapboxgl.Marker({ element: loupGarouEmoji })
         .setLngLat([-92.0198, 30.2241]) // Lafayette, Louisiana
         .setPopup(
@@ -392,19 +408,23 @@
         .addTo(WolfMap);
     });
 
+    // Variable for team Edward/Jacob votes
     let votes = JSON.parse(localStorage.getItem('twilightVotes')) || { edward: 0, jacob: 0 };
 
+    // function to submit votes
     function submitVote(choice) {
     votes[choice]++;
     localStorage.setItem('twilightVotes', JSON.stringify(votes));
     showResults();
     }
 
+    // Function to display voting results
     function showResults() {
     const total = votes.edward + votes.jacob;
     const edwardPercent = total ? Math.round((votes.edward / total) * 100) : 0;
     const jacobPercent = total ? 100 - edwardPercent : 0;
-
+    
+    // Content for voting results pop-up
     document.getElementById('vote-popup-content').innerHTML = `
         <h2>Current Results</h2>
         <p>
@@ -449,12 +469,13 @@
       document.getElementById("close-disclaimer").onclick = () => {
         document.getElementById("disclaimer-popup").style.display = "none";
 
-        // ⏱️ Trigger vote popup 10 seconds later
+        // Trigger vote popup 10 seconds after disclaimer closes
         setTimeout(() => {
           requireVote();
         }, 10000);
       };
 
+      // About vampire habitat button
       document.getElementById('aboutvampires').onclick = () => {
         document.getElementById('vampire-sound').play();
         document.getElementById('info-text').innerHTML =
@@ -464,6 +485,8 @@
         document.getElementById('info-popup').style.display = 'none';
         };
       };
+
+      // About werewolf habitat button
       document.getElementById('aboutwolves').onclick = () => {
         document.getElementById('wolf-sound').play();
         document.getElementById('info-text').innerHTML =
@@ -474,6 +497,7 @@
         };
       };
       
+      // Sources button content
       document.getElementById('info').onclick = () => {
         document.getElementById('info-text').innerHTML = `
             <h2>Sources</h2>
@@ -499,11 +523,8 @@
             https://www.arcgis.com/home/item.html?id=d4b81cb2dc4f4b938964aa1eb9b4b9a9</a> (Accessed June 2, 2025).</p>
 
             <p>Photo Attribution</p>
-            <p> Edward: Photo by robsessededdicted on Flickr, licensed under CC BY 2.0 </p>
-            <p>Jacob: Eurasian wolf (<em>Canis lupus lupus</em>), domaine du Pescheray, France<br>
-            Photo by Clément Bardot – Own work<br>
-            Licensed under <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a> via Wikimedia Commons
-            </p>
+            <p>Edward Cullen. Copyright held by Twilight Universe. Used under fair use. Retrieved from https://en.wikipedia.org/wiki/File:Edward_Cullen.jpg (June 1, 2025). </p>
+            <p>Jacob Black. Copyright held by Twilight Universe. Used under fair use. Retrieved from https://en.wikipedia.org/wiki/File:Jacob_Black2.jpg (Accessed June 1, 2025).</p>
         `;
         document.getElementById('info-popup').style.display = 'flex';
         document.getElementById('close-popup').onclick = () => {
@@ -511,7 +532,7 @@
   };
     };
 
-
+      // Adds trails for mouse movement, blood on the left paw prints on the right
       document.addEventListener("mousemove", function (e) {
         const sparkle = document.createElement("div");
         sparkle.classList.add("sparkle");
